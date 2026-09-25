@@ -1,0 +1,9 @@
+{
+  "workflow": "CI",
+  "job": "build-test",
+  "classification": "RUNNER_OR_EXTERNAL_SYSTEM",
+  "failing_command": "conan install . --output-folder=build --build=missing -s build_type=Release",
+  "log_excerpt": "ERROR: Unable to reach remote due to network timeout.",
+  "expected_action": "abstain_and_escalate",
+  "recommended_owner": "platform-infra"
+}

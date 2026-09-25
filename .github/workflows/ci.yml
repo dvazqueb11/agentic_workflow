@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Conan 2
+        run: |
+          python -m pip install --upgrade pip
+          pip install "conan>=2.0,<3.0"
+
+      - name: Prepare build logs directory
+        run: mkdir -p build/logs
+
+      - name: Detect Conan profile
+        run: |
+          set -o pipefail
+          conan profile detect --force | tee build/logs/conan-profile.log
+
+      - name: Install dependencies
+        run: |
+          set -o pipefail
+          conan install . \
+            --output-folder=build \
+            --build=missing \
+            -s build_type=Release | tee build/logs/conan-install.log
+
+      - name: Configure
+        run: |
+          set -o pipefail
+          cmake -S . -B build \
+            -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release | tee build/logs/cmake-configure.log
+
+      - name: Build
+        run: |
+          set -o pipefail
+          cmake --build build --config Release | tee build/logs/cmake-build.log
+
+      - name: Run C++ tests
+        run: |
+          set -o pipefail
+          ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
+
+      - name: Run policy and audit tests
+        run: |
+          set -o pipefail
+          python3 tests/policy/run_policy_tests.py --output build/policy-test-results.json | tee build/logs/policy-tests.log
+
+      - name: Upload logs and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs-and-results-${{ github.run_id }}
+          path: |
+            build/logs
+            build/ctest-results.xml
+            build/policy-test-results.json

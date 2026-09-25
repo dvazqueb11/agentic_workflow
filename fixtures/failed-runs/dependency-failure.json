@@ -1,0 +1,9 @@
+{
+  "workflow": "CI",
+  "job": "build-test",
+  "classification": "BUILD_DEPENDENCY",
+  "failing_command": "conan install . --output-folder=build --build=missing -s build_type=Release",
+  "log_excerpt": "ERROR: Package 'gtest/99.99.99' not resolved: Version not found in remotes.",
+  "expected_remediation": "correct_invalid_conan_reference",
+  "confidence": "high"
+}

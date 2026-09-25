@@ -1,0 +1,134 @@
+name: Healing PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, edited, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: healing-pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate-healing-pr:
+    if: contains(github.event.pull_request.labels.*.name, 'agentic-self-heal')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Conan 2
+        run: |
+          python -m pip install --upgrade pip
+          pip install "conan>=2.0,<3.0"
+
+      - name: Prepare build logs directory
+        run: mkdir -p build/logs
+
+      - name: Run identical CI commands
+        run: |
+          set -euo pipefail
+          conan profile detect --force | tee build/logs/conan-profile.log
+          conan install . --output-folder=build --build=missing -s build_type=Release | tee build/logs/conan-install.log
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release | tee build/logs/cmake-configure.log
+          cmake --build build --config Release | tee build/logs/cmake-build.log
+          ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
+          python3 tests/policy/run_policy_tests.py --output build/policy-test-results.json | tee build/logs/policy-tests.log
+
+      - name: Validate test files were not deleted
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          DELETED_TESTS="$(git diff --name-status "$BASE_SHA" "$HEAD_SHA" | awk '$1=="D" && $2 ~ /^tests\// {print $2}')"
+          if [ -n "$DELETED_TESTS" ]; then
+            echo "Deleted test files detected:"
+            echo "$DELETED_TESTS"
+            exit 1
+          fi
+
+      - name: Validate no new test skips or weakened assertions
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python3 tests/policy/check_diff_safety.py --base "$BASE_SHA" --head "$HEAD_SHA"
+
+      - name: Validate protected config unchanged
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          CHANGED="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          if echo "$CHANGED" | grep -Eq '^(\.github/workflows/|\.github/CODEOWNERS|\.github/branch-protection|\.github/security|security/|\.github/dependabot\.yml)'; then
+            echo "Protected workflow/security configuration changed:"
+            echo "$CHANGED"
+            exit 1
+          fi
+
+      - name: Ensure non-self approval exists
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = pr.number;
+            const author = pr.user.login;
+
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner, repo, pull_number: number, per_page: 100
+            });
+
+            const approvals = reviews.filter(r => r.state === "APPROVED");
+            const nonSelfApprovals = approvals.filter(r => r.user?.login !== author);
+
+            if (approvals.some(r => r.user?.login === author)) {
+              core.setFailed("Self-approval detected: PR author approved their own healing PR.");
+              return;
+            }
+            if (nonSelfApprovals.length < 1) {
+              core.setFailed("At least one non-author approval is required before merge.");
+            }
+
+      - name: Upload logs and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: healing-pr-validation-${{ github.run_id }}
+          path: |
+            build/logs
+            build/ctest-results.xml
+            build/policy-test-results.json
+
+      - name: Publish Step Summary
+        if: always()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          {
+            echo "## Healing PR Validation Summary"
+            echo
+            echo "- Healing PR: #${{ github.event.pull_request.number }}"
+            echo "- PR Author: ${PR_AUTHOR}"
+            echo "- Label: agentic-self-heal"
+            echo "- Current validation run: ${RUN_URL}"
+            echo "- Failed run reference: expected in PR description (required by template)."
+            echo
+            echo "This job re-ran the same build and test commands from CI and enforced anti-weakening policy checks."
+          } >> "$GITHUB_STEP_SUMMARY"

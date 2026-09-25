@@ -1,0 +1,20 @@
+{
+  "source_workflow_run": "https://github.com/example/project/actions/runs/123456",
+  "source_pull_request_or_commit": "https://github.com/example/project/pull/42",
+  "failed_job": "build-test",
+  "failed_command": "conan install . --output-folder=build --build=missing -s build_type=Release",
+  "relevant_log_references": [
+    "conan-install.log: line 12"
+  ],
+  "failure_classification": "BUILD_DEPENDENCY",
+  "diagnosis": "Invalid Conan dependency reference in conanfile.py.",
+  "confidence": "high",
+  "policy_decision": "allow",
+  "proposed_change": "Set gtest dependency from 99.99.99 to 1.14.0.",
+  "tests_and_validation_performed": [
+    "ctest",
+    "policy tests"
+  ],
+  "outcome": "healing_pr_created",
+  "human_approver_required": true
+}

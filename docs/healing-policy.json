@@ -1,0 +1,54 @@
+{
+  "allowed": {
+    "BUILD_DEPENDENCY": [
+      "correct_invalid_conan_reference"
+    ],
+    "SOURCE_COMPILE": [
+      "add_missing_include",
+      "small_source_defect_fix"
+    ],
+    "UNIT_TEST": [
+      "small_source_defect_fix",
+      "add_regression_test"
+    ],
+    "STATIC_ANALYSIS": [
+      "bounded_lint_or_static_analysis_fix"
+    ]
+  },
+  "diagnosis_only": [
+    "credentials_or_authentication_failure",
+    "private_registry_access_missing",
+    "nfs_or_storage_failure",
+    "runner_offline_or_capacity",
+    "lsf_permissions_or_infra_tags",
+    "external_system_outage",
+    "ambiguous_failure_insufficient_evidence"
+  ],
+  "blocked": [
+    "change_secrets_or_credentials",
+    "push_to_default_branch",
+    "automatic_merge",
+    "delete_or_weaken_tests",
+    "disable_quality_or_security_checks",
+    "change_branch_protection",
+    "increase_workflow_permissions",
+    "force_push",
+    "unbounded_retries",
+    "unrelated_broad_refactor"
+  ],
+  "report_schema_required": [
+    "source_workflow_run",
+    "source_pull_request_or_commit",
+    "failed_job",
+    "failed_command",
+    "relevant_log_references",
+    "failure_classification",
+    "diagnosis",
+    "confidence",
+    "policy_decision",
+    "proposed_change",
+    "tests_and_validation_performed",
+    "outcome",
+    "human_approver_required"
+  ]
+}
