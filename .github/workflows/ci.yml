@@ -50,19 +50,17 @@ jobs:
       - name: Configure
         run: |
           set -o pipefail
-          cmake -S . -B build \
-            -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
-            -DCMAKE_BUILD_TYPE=Release | tee build/logs/cmake-configure.log
+          cmake --preset conan-release | tee build/logs/cmake-configure.log
 
       - name: Build
         run: |
           set -o pipefail
-          cmake --build build --config Release | tee build/logs/cmake-build.log
+          cmake --build --preset conan-release | tee build/logs/cmake-build.log
 
       - name: Run C++ tests
         run: |
           set -o pipefail
-          ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
+          ctest --preset conan-release --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
 
       - name: Run policy and audit tests
         run: |

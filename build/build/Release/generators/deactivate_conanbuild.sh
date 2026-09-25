@@ -1,0 +1,1 @@
+. "/Users/diegovazquez/Library/CloudStorage/OneDrive-Microsoft/Desktop/SDP/Clients/Synopsys/9. Projects/agentic_workflow/build/build/Release/generators/deactivate_conanbuildenv-release-armv8.sh"

@@ -1,0 +1,5 @@
+CalculatorTest.AddsValues 1 0.143394
+CalculatorTest.SubtractsValues 1 0.0694789
+CalculatorTest.DividesValues 1 0.0847927
+CalculatorTest.RejectsDivisionByZero 1 0.0740978
+---
