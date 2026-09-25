@@ -1,4 +1,4 @@
-* @example-org/project-boost-maintainers
+* @dvazqueb11 @example-org/project-boost-maintainers
 
-.github/workflows/* @example-org/platform-ci
-docs/healing-policy.* @example-org/platform-ci @example-org/security
+.github/workflows/* @dvazqueb11 @example-org/platform-ci
+docs/healing-policy.* @dvazqueb11 @example-org/platform-ci @example-org/security
