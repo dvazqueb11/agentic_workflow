@@ -1,4 +1,4 @@
-# project-boost-self-healing-ci
+# project-self-healing-ci
 
 ## What this demo is
 
