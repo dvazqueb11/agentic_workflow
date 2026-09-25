@@ -1,0 +1,5 @@
+if(EXISTS "/Users/diegovazquez/Library/CloudStorage/OneDrive-Microsoft/Desktop/SDP/Clients/Synopsys/9. Projects/agentic_workflow/build/build/Release/project_boost_tests_e3b0c442_tests.cmake")
+  include("/Users/diegovazquez/Library/CloudStorage/OneDrive-Microsoft/Desktop/SDP/Clients/Synopsys/9. Projects/agentic_workflow/build/build/Release/project_boost_tests_e3b0c442_tests.cmake")
+else()
+  add_test(project_boost_tests_NOT_BUILT project_boost_tests_NOT_BUILT)
+endif()
