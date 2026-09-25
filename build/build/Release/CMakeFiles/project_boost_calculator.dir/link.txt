@@ -1,2 +1,0 @@
-/usr/bin/ar qc libproject_boost_calculator.a CMakeFiles/project_boost_calculator.dir/src/calculator.cpp.o
-/usr/bin/ranlib libproject_boost_calculator.a
