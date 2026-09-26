@@ -42,9 +42,9 @@ This executes:
 
 - `conan profile detect --force`
 - `conan install . --output-folder=build --build=missing -s build_type=Release`
-- `cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release`
-- `cmake --build build --config Release`
-- `ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml`
+- `cmake --preset conan-release`
+- `cmake --build --preset conan-release`
+- `ctest --preset conan-release --output-on-failure --no-tests=error --output-junit build/ctest-results.xml`
 - `python3 tests/policy/run_policy_tests.py --output build/policy-test-results.json`
 
 ## Compile the agentic Markdown workflow with `gh-aw`
