@@ -41,9 +41,9 @@ jobs:
           set -euo pipefail
           conan profile detect --force | tee build/logs/conan-profile.log
           conan install . --output-folder=build --build=missing -s build_type=Release | tee build/logs/conan-install.log
-          cmake --preset conan-release | tee build/logs/cmake-configure.log
-          cmake --build --preset conan-release | tee build/logs/cmake-build.log
-          ctest --preset conan-release --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release | tee build/logs/cmake-configure.log
+          cmake --build build --config Release | tee build/logs/cmake-build.log
+          ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
           python3 tests/policy/run_policy_tests.py --output build/policy-test-results.json | tee build/logs/policy-tests.log
 
       - name: Validate test files were not deleted
