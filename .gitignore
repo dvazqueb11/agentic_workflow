@@ -1,0 +1,14 @@
+# Build outputs
+/build/
+/cmake-build-*/
+
+# Conan/CMake generated local preset include
+/CMakeUserPresets.json
+
+# Python caches
+__pycache__/
+*.py[cod]
+tests/**/__pycache__/
+
+# OS/editor artifacts
+.DS_Store
