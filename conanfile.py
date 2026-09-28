@@ -10,6 +10,8 @@ class ProjectBoostConan(ConanFile):
 
     def layout(self):
         cmake_layout(self)
+        self.folders.build = "."
+        self.folders.generators = "."
 
     def generate(self):
         deps = CMakeDeps(self)
