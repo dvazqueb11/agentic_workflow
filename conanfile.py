@@ -6,7 +6,7 @@ class ProjectBoostConan(ConanFile):
     name = "sample-self-healing-ci"
     version = "0.1.0"
     settings = "os", "compiler", "build_type", "arch"
-    requires = "gtest/99.99.99"
+    requires = "gtest/1.99.99"
 
     def layout(self):
         cmake_layout(self)
