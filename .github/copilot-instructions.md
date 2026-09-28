@@ -10,3 +10,7 @@
 - Never modify secrets, credentials, permissions, branch protection, or external infrastructure.
 - Never push to default branch.
 - Always create a pull request labeled `agentic-self-heal` for any code proposal.
+- Validate every inter-agent artifact against `docs/handoff-contracts.json`.
+- Treat subagent output as evidence to verify, not as an authoritative decision.
+- Never run remediation for an `abstain_and_escalate` policy decision.
+- Never let an escalation path create code changes.

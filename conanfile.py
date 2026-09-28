@@ -3,7 +3,7 @@ from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 
 
 class ProjectBoostConan(ConanFile):
-    name = "project-boost-self-healing-ci"
+    name = "sample-self-healing-ci"
     version = "0.1.0"
     settings = "os", "compiler", "build_type", "arch"
     requires = "gtest/1.14.0"

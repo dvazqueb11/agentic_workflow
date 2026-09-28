@@ -1,4 +1,4 @@
-* @example-org/project-boost-maintainers
+* @example-org/sample-maintainers
 
 .github/workflows/* @example-org/platform-ci
 docs/healing-policy.* @example-org/platform-ci @example-org/security

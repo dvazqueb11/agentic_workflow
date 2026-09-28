@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "policy_decision",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1001,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1001",
+  "source_commit_sha": "1111111111111111111111111111111111111111",
+  "source_pull_request_number": 42,
+  "diagnosis_workflow_run_id": 2001,
+  "failure_classification": "BUILD_DEPENDENCY",
+  "remediation_action": "correct_invalid_conan_reference",
+  "decision": "allow_remediation",
+  "policy_references": [
+    "docs/healing-policy.md: Allowed (for this demo)",
+    "docs/healing-policy.json: allowed.BUILD_DEPENDENCY"
+  ],
+  "reason": "The diagnosis identifies one bounded invalid Conan reference with direct log and diff evidence.",
+  "confidence": "high"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "diagnosis",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1002,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1002",
+  "source_commit_sha": "2222222222222222222222222222222222222222",
+  "source_pull_request_number": 43,
+  "failed_workflow": "CI",
+  "failed_job": "platform-regression",
+  "failed_command": "bsub -q regression make platform-regression",
+  "affected_modules": [
+    "backend",
+    "agentic"
+  ],
+  "evidence": [
+    "build/logs/platform-regression.log: LSF authorization denied for queue regression.",
+    "build/logs/platform-regression.log: shared NFS release tree /sample/releases/nightly was unavailable."
+  ],
+  "triggering_diff_summary": "The triggering diff changes calculator behavior and contains no runner, LSF, NFS, credential, or workflow configuration.",
+  "failure_classification": "RUNNER_OR_EXTERNAL_SYSTEM",
+  "diagnosis": "The regression did not start because external LSF authorization and the shared NFS release tree were unavailable.",
+  "confidence": "high",
+  "remediation_action": null,
+  "recommended_owner": "platform-infrastructure"
+}

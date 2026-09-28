@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "diagnosis",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1001,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1001",
+  "source_commit_sha": "1111111111111111111111111111111111111111",
+  "source_pull_request_number": 42,
+  "failed_workflow": "CI",
+  "failed_job": "build-test",
+  "failed_command": "conan install . --output-folder=build --build=missing -s build_type=Release",
+  "affected_modules": [
+    "core",
+    "packaging"
+  ],
+  "evidence": [
+    "build/logs/conan-install.log: ERROR: Package 'gtest/99.99.99' not resolved: Version not found in remotes.",
+    "conanfile.py: requires = \"gtest/99.99.99\""
+  ],
+  "triggering_diff_summary": "The pull request changed only the Conan test dependency reference.",
+  "failure_classification": "BUILD_DEPENDENCY",
+  "diagnosis": "The requested Conan package version does not exist, so dependency resolution fails before compilation.",
+  "confidence": "high",
+  "remediation_action": "correct_invalid_conan_reference",
+  "recommended_owner": null
+}

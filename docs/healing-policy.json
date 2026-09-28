@@ -50,5 +50,15 @@
     "tests_and_validation_performed",
     "outcome",
     "human_approver_required"
+  ],
+  "handoff_requirements": [
+    "validate_against_docs_handoff_contracts",
+    "include_source_repository_run_commit_and_pr_when_available",
+    "validate_before_publish_and_before_consume",
+    "independent_policy_decision",
+    "never_remediate_abstention",
+    "never_create_code_from_escalation",
+    "never_auto_approve_or_merge",
+    "abstain_on_missing_malformed_stale_or_mismatched_provenance"
   ]
 }

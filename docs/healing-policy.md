@@ -49,3 +49,15 @@ Each healing attempt must record:
 - outcome
 - abstention reason when applicable
 - human approver requirement
+
+## Multi-agent handoff requirements
+
+- Every handoff must match `docs/handoff-contracts.json`.
+- Every handoff must include the source repository, workflow run, commit SHA, and pull request number when available.
+- A custom safe-output job must validate the handoff before publishing it as an artifact.
+- A downstream workflow must validate the artifact again before its coding agent runs.
+- The policy decision must be independent from the diagnosis.
+- Remediation must not run for `abstain_and_escalate`.
+- Escalation must not create a branch, commit, or pull request.
+- A validator may report readiness but must not approve or merge.
+- Missing, malformed, stale, or mismatched provenance requires abstention.

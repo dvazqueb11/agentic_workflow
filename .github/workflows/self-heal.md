@@ -1,106 +1,97 @@
 ---
-name: Self-Healing Agentic Workflow
+name: Sample Diagnose
+description: Diagnose failed CI with independent log and diff analysis
+intent: Produce a provenance-bound diagnosis before any remediation is considered
 on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: [main]
+    conclusion: failure
+    branches: ["**"]
   workflow_dispatch:
     inputs:
-      run_id:
-        description: "Failed CI run ID to investigate"
+      fixture:
+        description: Optional simulated Sample failure
         required: false
-      pull_request_number:
-        description: "Pull request number to investigate"
-        required: false
+        type: choice
+        options:
+          - live-run
+          - sample-dependency-diagnosis
+          - sample-lsf-infrastructure-diagnosis
+        default: live-run
 permissions:
   contents: read
   actions: read
-  issues: read
   pull-requests: read
+engine:
+  id: copilot
+  agent: sample-diagnostician
+imports:
+  - shared/publish-handoff.md
 network: defaults
-safe-outputs:
-  create-pull-request:
-    max: 1
-    labels: [agentic-self-heal]
-    title-prefix: "[self-heal] "
-  create-issue:
-    max: 1
-    labels: [agentic-self-heal, abstention]
+timeout-minutes: 20
+max-ai-credits: 300
+concurrency:
+  job-discriminator: ${{ github.run_id }}
 ---
 
-# Self-Heal Agentic Workflow
+# Sample failure diagnosis
 
-## Purpose
+Diagnose exactly one failed CI run.
 
-Investigate failed CI runs and, when policy permits and evidence is sufficient, propose the smallest safe remediation via a pull request.
+For a `workflow_run` event:
 
-Only proceed when either:
-- Trigger is `workflow_dispatch`, or
-- Trigger is `workflow_run` for workflow `CI` with failed conclusion.
-If no failed CI context is present, abstain and produce a diagnosis-only issue.
+1. Use `${{ github.event.workflow_run.id }}` as the source workflow run.
+2. Inspect the failed job and only the relevant logs/artifacts first.
+3. Locate the associated pull request or commit and inspect its triggering diff.
 
-## Triggers
+For a manual fixture other than `live-run`, read:
 
-- `workflow_run` completion for workflow named `CI` where `conclusion == failure`.
-- `workflow_dispatch` with:
-  - `run_id` (optional)
-  - `pull_request_number` (optional)
+`fixtures/failed-runs/${{ github.event.inputs.fixture }}.json`
 
-## Permissions and safety envelope
+Treat the fixture as the complete simulated run evidence; do not query or invent customer infrastructure.
 
-- Read-only repository and Actions access by default.
-- Minimum write access only for creating a healing branch and pull request.
-- No direct writes to default branch.
-- No automatic merge.
-- Bounded AI-credit budget.
-- GitHub Copilot is the default engine.
+Delegate these bounded tasks:
 
-## Required operating procedure
+1. Ask the `sample-log-analyst` subagent to identify the failed command, primary error, and whether the evidence indicates source/build behavior or external infrastructure.
+2. Ask the `sample-diff-analyst` subagent to identify changed modules and whether the diff could plausibly cause the primary error.
+3. Reconcile both reports against the repository policy yourself.
 
-1. Locate the failed CI run and associated pull request or commit.
-2. Inspect only relevant failed logs and artifacts first.
-3. Read the triggering diff before unrelated repository files.
-4. Classify failure as exactly one:
-   - BUILD_DEPENDENCY
-   - SOURCE_COMPILE
-   - UNIT_TEST
-   - STATIC_ANALYSIS
-   - RUNNER_OR_EXTERNAL_SYSTEM
-   - UNKNOWN
-5. Quote concrete evidence from logs/artifacts.
-6. Distinguish triggering defect from secondary noise.
-7. Assign confidence and explain uncertainty.
-8. Check remediation policy before editing.
-9. If safely remediable, create the smallest patch.
-10. Add/update a regression test when appropriate.
-11. Never delete, quarantine, skip, or weaken failing tests.
-12. Never disable/reduce build, test, security, static-analysis, or quality checks.
-13. Never modify credentials, secrets, branch protections, permissions, runner config, or external infrastructure.
-14. Never introduce unbounded retries.
-15. Never push to default branch.
-16. Run documented local build and test commands.
-17. Open a pull request labeled `agentic-self-heal`.
-18. Include in PR:
-    - failed workflow and job
-    - failure classification
-    - likely root cause
-    - exact supporting evidence
-    - files changed
-    - why change is minimal
-    - tests added/updated
-    - validation executed
-    - confidence
-    - limitations
-    - explicit human approval requirement
-19. If evidence is insufficient or issue is out of policy, abstain.
-20. On abstention, produce missing evidence, recommended owner, and next diagnostic step.
+Call `publish-handoff` exactly once with a JSON string matching the `diagnosis` contract in `docs/handoff-contracts.json`. Include the real repository, run ID, run URL, commit SHA, and pull request number when available. Redact token-like values and keep evidence excerpts bounded.
 
-## Required outputs
+Do not edit files or propose a pull request.
 
-- Audit artifact in JSON + Markdown format under `artifacts/healing-reports/`.
-- Pull request body using `.github/pull_request_template.md`.
+## agent: `sample-log-analyst`
+---
+description: Extracts bounded failure evidence from CI logs without proposing changes
+tools: ["read", "search"]
+---
 
-## Compilation note
+Read only the relevant failed job logs and artifacts. Return:
 
-This Markdown workflow must be compiled with the official `gh-aw` extension to generate `self-heal.lock.yml`.
+- failed job and command
+- primary error excerpt and its source reference
+- likely failure classification
+- any secondary noise that should not drive remediation
+- confidence and missing evidence
+
+Do not suggest a fix and do not inspect unrelated repository content.
+
+## end agent: `sample-log-analyst`
+
+## agent: `sample-diff-analyst`
+---
+description: Correlates a triggering diff with Sample-shaped modules and failure evidence
+tools: ["read", "search"]
+---
+
+Inspect the triggering pull-request or commit diff. Return:
+
+- changed files and affected modules: core, backend, frontend, agentic, packaging, or unknown
+- whether the diff could plausibly cause the reported failure
+- exact diff references supporting the conclusion
+- confidence and any ambiguity
+
+Do not propose edits.
+
+## end agent: `sample-diff-analyst`
