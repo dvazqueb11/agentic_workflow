@@ -28,11 +28,38 @@ engine:
   agent: sample-diagnostician
 imports:
   - shared/publish-handoff.md
+tools:
+  github:
+    toolsets: [context, repos, pull_requests, actions]
 network: defaults
 timeout-minutes: 20
 max-ai-credits: 300
 concurrency:
   job-discriminator: ${{ github.run_id }}
+steps:
+  - name: Collect source run evidence
+    if: github.event_name == 'workflow_run'
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_REPOSITORY: ${{ github.repository }}
+      SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+    run: |
+      set -uo pipefail
+      out=/tmp/gh-aw/source-run
+      mkdir -p "$out"
+      gh api "repos/${SOURCE_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}" \
+        > "$out/run.json" || echo "unavailable" > "$out/run.json"
+      gh api "repos/${SOURCE_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}/jobs?per_page=100" \
+        > "$out/jobs.json" || echo "unavailable" > "$out/jobs.json"
+      { gh run view "$SOURCE_RUN_ID" -R "$SOURCE_REPOSITORY" --log-failed || echo "unavailable"; } \
+        | tail -n 300 > "$out/failed-job-log.txt"
+      gh api "repos/${SOURCE_REPOSITORY}/commits/${SOURCE_SHA}/pulls" \
+        > "$out/pulls.json" || echo "unavailable" > "$out/pulls.json"
+      { gh api -H "Accept: application/vnd.github.diff" \
+          "repos/${SOURCE_REPOSITORY}/commits/${SOURCE_SHA}" || echo "unavailable"; } \
+        | head -c 200000 > "$out/commit.diff"
+      ls -la "$out"
 ---
 
 # Sample failure diagnosis
@@ -41,8 +68,8 @@ Diagnose exactly one failed CI run.
 
 For a `workflow_run` event:
 
-1. Use `${{ github.event.workflow_run.id }}` as the source workflow run.
-2. Inspect the failed job and only the relevant logs/artifacts first.
+1. Use `${{ github.event.workflow_run.id }}` as the source workflow run and `${{ github.event.workflow_run.head_sha }}` as its commit SHA.
+2. Read the evidence collected for that run in `/tmp/gh-aw/source-run/` (`run.json`, `jobs.json`, `failed-job-log.txt`, `pulls.json`, `commit.diff`). Inspect the failed job and only the relevant logs/artifacts first. Use GitHub MCP tools only if a file is marked `unavailable`.
 3. Locate the associated pull request or commit and inspect its triggering diff.
 
 For a manual fixture other than `live-run`, read:
@@ -58,6 +85,8 @@ Delegate these bounded tasks:
 3. Reconcile both reports against the repository policy yourself.
 
 Call `publish-handoff` exactly once with a JSON string matching the `diagnosis` contract in `docs/handoff-contracts.json`. Include the real repository, run ID, run URL, commit SHA, and pull request number when available. Redact token-like values and keep evidence excerpts bounded.
+
+The handoff is rejected unless `source_commit_sha` is the full 40-character lowercase commit SHA and `affected_modules` is a non-empty list of module names. Never use placeholders such as `unknown` for the commit SHA; if the affected modules cannot be determined, use `["unknown"]` and classify the failure as `UNKNOWN`.
 
 Do not edit files or propose a pull request.
 

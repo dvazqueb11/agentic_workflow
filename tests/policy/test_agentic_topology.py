@@ -38,6 +38,14 @@ class AgenticTopologyTests(unittest.TestCase):
                     self.assertIn(f"## agent: `{subagent}`", workflow)
                     self.assertIn(f"`{subagent}` subagent", workflow)
 
+    def test_diagnosis_receives_source_run_evidence(self) -> None:
+        workflow = (WORKFLOWS / "self-heal.md").read_text(encoding="utf-8")
+        lock = (WORKFLOWS / "self-heal.lock.yml").read_text(encoding="utf-8")
+        self.assertIn("${{ github.event.workflow_run.head_sha }}", workflow)
+        self.assertIn("/tmp/gh-aw/source-run", workflow)
+        self.assertIn("name: Collect source run evidence", lock)
+        self.assertRegex(lock, r'"GITHUB_TOOLSETS": "[^"]*\bactions\b')
+
     def test_parent_profiles_allow_subagent_invocation(self) -> None:
         parent_agents = [
             "sample-diagnostician",
