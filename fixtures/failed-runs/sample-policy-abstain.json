@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "policy_decision",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1002,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1002",
+  "source_commit_sha": "2222222222222222222222222222222222222222",
+  "source_pull_request_number": 43,
+  "diagnosis_workflow_run_id": 2002,
+  "failure_classification": "RUNNER_OR_EXTERNAL_SYSTEM",
+  "remediation_action": null,
+  "decision": "abstain_and_escalate",
+  "policy_references": [
+    "docs/healing-policy.md: Diagnosis-only (must abstain from code changes)",
+    "docs/healing-policy.json: diagnosis_only"
+  ],
+  "reason": "LSF authorization and NFS availability are external infrastructure conditions and no source change can safely repair them.",
+  "confidence": "high"
+}

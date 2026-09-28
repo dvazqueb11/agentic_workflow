@@ -4,6 +4,8 @@
 - Workflow:
 - Job:
 - Failed run URL:
+- Diagnosis run URL:
+- Policy Gate run URL:
 
 ### Failure classification
 - One of: BUILD_DEPENDENCY / SOURCE_COMPILE / UNIT_TEST / STATIC_ANALYSIS / RUNNER_OR_EXTERNAL_SYSTEM / UNKNOWN
@@ -33,3 +35,9 @@
 
 ### Human approval requirement
 - [ ] I confirm this PR requires explicit human approval before merge.
+
+### Agent trail
+- Diagnostician:
+- Policy Gate decision:
+- Remediator:
+- Validator readiness:

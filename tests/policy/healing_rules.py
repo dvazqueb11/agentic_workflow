@@ -6,6 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
+ROOT = Path(__file__).resolve().parents[2]
+HANDOFF_CONTRACTS = ROOT / "docs" / "handoff-contracts.json"
+
 ALLOWED_REMEDIATIONS = {
     "BUILD_DEPENDENCY": {
         "correct_invalid_conan_reference",
@@ -51,6 +54,70 @@ def validate_audit_report_shape(report: dict[str, Any]) -> list[str]:
         "human_approver_required",
     }
     return sorted(required.difference(report.keys()))
+
+
+def validate_handoff_shape(
+    payload: dict[str, Any],
+    contracts_path: Path = HANDOFF_CONTRACTS,
+) -> list[str]:
+    problems: list[str] = []
+    contracts = load_json(contracts_path)
+    handoff_type = payload.get("handoff_type")
+    contract = contracts["contracts"].get(handoff_type)
+    if contract is None:
+        return [f"unsupported-handoff-type:{handoff_type}"]
+
+    if payload.get("schema_version") != contracts["schema_version"]:
+        problems.append(
+            f"schema-version:{payload.get('schema_version')}!=expected:{contracts['schema_version']}"
+        )
+
+    for field in contract["required"]:
+        if field not in payload:
+            problems.append(f"missing:{field}")
+
+    for field in contract.get("string_fields", []):
+        value = payload.get(field)
+        if value is not None and (not isinstance(value, str) or not value.strip()):
+            problems.append(f"invalid-string:{field}")
+
+    for field in contract.get("integer_fields", []):
+        value = payload.get(field)
+        if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value <= 0):
+            problems.append(f"invalid-positive-integer:{field}")
+
+    for field in contract.get("boolean_fields", []):
+        value = payload.get(field)
+        if value is not None and not isinstance(value, bool):
+            problems.append(f"invalid-boolean:{field}")
+
+    for field in contract.get("array_fields", []):
+        value = payload.get(field)
+        if value is not None and (
+            not isinstance(value, list)
+            or not value
+            or any(not isinstance(item, str) or not item.strip() for item in value)
+        ):
+            problems.append(f"invalid-string-array:{field}")
+
+    for field, allowed_values in contract.get("enums", {}).items():
+        if field in payload and payload[field] not in allowed_values:
+            problems.append(f"invalid-enum:{field}:{payload[field]}")
+
+    source_sha = payload.get("source_commit_sha")
+    if source_sha is not None and not re.fullmatch(r"[0-9a-f]{40}", source_sha):
+        problems.append("invalid-source-commit-sha")
+
+    source_url = payload.get("source_workflow_run_url")
+    if source_url is not None and not source_url.startswith("https://github.com/"):
+        problems.append("invalid-source-workflow-run-url")
+
+    nullable_fields = set(contract.get("nullable_fields", []))
+    for field in nullable_fields:
+        if field in payload and payload[field] is None:
+            problems = [problem for problem in problems if not problem.endswith(f":{field}")]
+
+    return sorted(set(problems))
 
 
 def policy_decision_for(classification: str, remediation_action: str | None) -> str:

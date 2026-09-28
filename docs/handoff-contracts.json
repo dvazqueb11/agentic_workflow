@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "contracts": {
+    "diagnosis": {
+      "required": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_id",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "failed_workflow",
+        "failed_job",
+        "failed_command",
+        "affected_modules",
+        "evidence",
+        "triggering_diff_summary",
+        "failure_classification",
+        "diagnosis",
+        "confidence",
+        "remediation_action",
+        "recommended_owner"
+      ],
+      "string_fields": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "failed_workflow",
+        "failed_job",
+        "failed_command",
+        "triggering_diff_summary",
+        "failure_classification",
+        "diagnosis",
+        "confidence",
+        "remediation_action",
+        "recommended_owner"
+      ],
+      "integer_fields": [
+        "source_workflow_run_id",
+        "source_pull_request_number"
+      ],
+      "array_fields": [
+        "affected_modules",
+        "evidence"
+      ],
+      "nullable_fields": [
+        "source_pull_request_number",
+        "remediation_action",
+        "recommended_owner"
+      ],
+      "enums": {
+        "handoff_type": [
+          "diagnosis"
+        ],
+        "failure_classification": [
+          "BUILD_DEPENDENCY",
+          "SOURCE_COMPILE",
+          "UNIT_TEST",
+          "STATIC_ANALYSIS",
+          "RUNNER_OR_EXTERNAL_SYSTEM",
+          "UNKNOWN"
+        ],
+        "confidence": [
+          "low",
+          "medium",
+          "high"
+        ]
+      }
+    },
+    "policy_decision": {
+      "required": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_id",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "diagnosis_workflow_run_id",
+        "failure_classification",
+        "remediation_action",
+        "decision",
+        "policy_references",
+        "reason",
+        "confidence"
+      ],
+      "string_fields": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "failure_classification",
+        "remediation_action",
+        "decision",
+        "reason",
+        "confidence"
+      ],
+      "integer_fields": [
+        "source_workflow_run_id",
+        "source_pull_request_number",
+        "diagnosis_workflow_run_id"
+      ],
+      "array_fields": [
+        "policy_references"
+      ],
+      "nullable_fields": [
+        "source_pull_request_number",
+        "remediation_action"
+      ],
+      "enums": {
+        "handoff_type": [
+          "policy_decision"
+        ],
+        "failure_classification": [
+          "BUILD_DEPENDENCY",
+          "SOURCE_COMPILE",
+          "UNIT_TEST",
+          "STATIC_ANALYSIS",
+          "RUNNER_OR_EXTERNAL_SYSTEM",
+          "UNKNOWN"
+        ],
+        "decision": [
+          "allow_remediation",
+          "abstain_and_escalate"
+        ],
+        "confidence": [
+          "low",
+          "medium",
+          "high"
+        ]
+      }
+    },
+    "remediation_result": {
+      "required": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_id",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "policy_workflow_run_id",
+        "pull_request_number",
+        "pull_request_url",
+        "changed_files",
+        "validation_commands",
+        "human_approver_required"
+      ],
+      "string_fields": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "pull_request_url"
+      ],
+      "integer_fields": [
+        "source_workflow_run_id",
+        "policy_workflow_run_id",
+        "pull_request_number"
+      ],
+      "boolean_fields": [
+        "human_approver_required"
+      ],
+      "array_fields": [
+        "changed_files",
+        "validation_commands"
+      ],
+      "enums": {
+        "handoff_type": [
+          "remediation_result"
+        ]
+      }
+    },
+    "escalation_result": {
+      "required": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_id",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "policy_workflow_run_id",
+        "recommended_owner",
+        "evidence",
+        "next_diagnostic_action",
+        "code_change_created"
+      ],
+      "string_fields": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "recommended_owner",
+        "next_diagnostic_action"
+      ],
+      "integer_fields": [
+        "source_workflow_run_id",
+        "policy_workflow_run_id"
+      ],
+      "boolean_fields": [
+        "code_change_created"
+      ],
+      "array_fields": [
+        "evidence"
+      ],
+      "enums": {
+        "handoff_type": [
+          "escalation_result"
+        ],
+        "code_change_created": [
+          false
+        ]
+      }
+    },
+    "validation_report": {
+      "required": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_id",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "pull_request_number",
+        "deterministic_validation_run_id",
+        "deterministic_conclusion",
+        "policy_consistent",
+        "anti_weakening_passed",
+        "readiness",
+        "human_merge_required"
+      ],
+      "string_fields": [
+        "schema_version",
+        "handoff_type",
+        "source_repository",
+        "source_workflow_run_url",
+        "source_commit_sha",
+        "deterministic_conclusion",
+        "readiness"
+      ],
+      "integer_fields": [
+        "source_workflow_run_id",
+        "pull_request_number",
+        "deterministic_validation_run_id"
+      ],
+      "boolean_fields": [
+        "policy_consistent",
+        "anti_weakening_passed",
+        "human_merge_required"
+      ],
+      "enums": {
+        "handoff_type": [
+          "validation_report"
+        ],
+        "deterministic_conclusion": [
+          "success",
+          "failure",
+          "cancelled",
+          "timed_out"
+        ],
+        "readiness": [
+          "ready_for_human_review",
+          "not_ready"
+        ]
+      }
+    }
+  }
+}
