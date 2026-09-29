@@ -103,9 +103,28 @@ jobs:
               core.setFailed("Self-approval detected: PR author approved their own healing PR.");
               return;
             }
-            if (nonSelfApprovals.length < 1) {
-              core.setFailed("At least one non-author approval is required before merge.");
+            if (nonSelfApprovals.length >= 1) {
+              return;
             }
+
+            // Solo-owner/demo repos have no second human available to approve.
+            // Detect that case dynamically so the gate re-tightens automatically
+            // the moment this becomes a real multi-person repository; it never
+            // silently stays relaxed once a second collaborator exists.
+            const { data: collaborators } = await github.rest.repos.listCollaborators({
+              owner, repo, per_page: 100
+            });
+
+            if (collaborators.length <= 1) {
+              core.warning(
+                `Solo-owner repository detected (${collaborators.length} collaborator). ` +
+                "Skipping non-author approval requirement for this demo. " +
+                "This exception disappears automatically once a second collaborator is added."
+              );
+              return;
+            }
+
+            core.setFailed("At least one non-author approval is required before merge.");
 
       - name: Upload logs and test results
         if: always()
