@@ -19,6 +19,7 @@ network: defaults
 timeout-minutes: 25
 max-ai-credits: 500
 safe-outputs:
+  report-failure-as-issue: false
   create-pull-request:
     max: 1
     labels: [agentic-self-heal]
@@ -56,15 +57,6 @@ jobs:
     needs: [route]
     if: needs.route.outputs.decision == 'allow_remediation'
 steps:
-  - name: Align workspace to failing commit
-    if: github.event_name == 'workflow_run'
-    env:
-      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
-    run: |
-      set -euo pipefail
-      git fetch --no-tags origin "${SOURCE_SHA}"
-      git checkout --detach "${SOURCE_SHA}"
-
   - name: Download policy handoff for remediation
     uses: actions/download-artifact@v8
     with:
@@ -80,12 +72,24 @@ steps:
         --input build/handoff/handoff.json \
         --expected-type policy_decision
       test "$(jq -r .decision build/handoff/handoff.json)" = "allow_remediation"
+
+  - name: Align workspace to diagnosed source commit
+    if: github.event_name == 'workflow_run'
+    run: |
+      set -euo pipefail
+      source_sha="$(jq -r .source_commit_sha build/handoff/handoff.json)"
+      if ! printf '%s' "$source_sha" | grep -Eq '^[0-9a-f]{40}$'; then
+        echo "Invalid source_commit_sha in policy handoff: $source_sha" >&2
+        exit 1
+      fi
+      git fetch --no-tags origin "$source_sha"
+      git checkout -B "self-heal/${source_sha:0:12}" "$source_sha"
 ---
 
 # Policy-approved remediation
 
 Read `build/handoff/handoff.json`. Reinspect the source failed run and triggering diff identified by that handoff before making any edit.
-For `workflow_run` events, treat `${{ github.event.workflow_run.head_sha }}` as the source revision and ensure your edits are based on that revision, not default branch state.
+For `workflow_run` events, use `source_commit_sha` from `build/handoff/handoff.json` as the source revision and ensure your edits are based on that revision, not default branch state.
 
 Ask the `sample-test-planner` subagent which existing test most directly detects the defect and whether a new regression test is necessary. Make the smallest policy-approved change, run the documented CI commands, and use `create-pull-request` exactly once.
 

@@ -11,6 +11,9 @@ permissions:
   contents: read
   actions: read
   pull-requests: read
+tools:
+  github:
+    toolsets: [context, pull_requests, actions]
 engine:
   id: copilot
   agent: sample-validator
@@ -18,15 +21,17 @@ network: defaults
 timeout-minutes: 15
 max-ai-credits: 250
 safe-outputs:
+  report-failure-as-issue: false
   add-comment:
     max: 1
-    target: "*"
+    target: ${{ github.event.workflow_run.pull_requests[0].number }}
     footer: true
 ---
 
 # Independent healing pull-request review
 
 Inspect deterministic validation run `${{ github.event.workflow_run.id }}` and identify its associated pull request. If it is not labeled `agentic-self-heal`, finish with no write.
+If no associated pull request can be identified, call `noop` with a brief reason and finish.
 
 Correlate the pull request body and diff with the original failed run, diagnosis, and policy decision. Ask the `sample-regression-auditor` subagent to inspect whether tests or quality controls were weakened. Then post one pull-request comment with:
 

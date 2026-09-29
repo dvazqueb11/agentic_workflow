@@ -48,7 +48,7 @@ CI failure
      -> Sample Escalate  -> escalation issue, no code change
 ```
 
-For branch-originated failures, the remediation workflow aligns its workspace to the triggering workflow-run commit SHA before editing so it can propose a pull request for defects that are not yet on `main`.
+For branch-originated failures, the remediation workflow aligns its workspace to the policy handoff `source_commit_sha` before editing so it can propose a pull request for defects that are not yet on `main`.
 
 Diagnose and Policy Gate exchange versioned, schema-validated artifacts. The two policy outcomes are gated by deterministic jobs before another coding agent can run.
 
