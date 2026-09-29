@@ -20,6 +20,8 @@ on:
 permissions:
   contents: read
   actions: read
+safe-outputs:
+  report-failure-as-issue: false
 engine:
   id: copilot
   agent: sample-policy-gate

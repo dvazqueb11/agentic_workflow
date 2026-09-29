@@ -21,6 +21,7 @@ network: defaults
 timeout-minutes: 15
 max-ai-credits: 200
 safe-outputs:
+  report-failure-as-issue: false
   create-issue:
     max: 1
     labels: [agentic-self-heal, abstention]
