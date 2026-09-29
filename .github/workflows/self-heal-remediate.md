@@ -56,6 +56,15 @@ jobs:
     needs: [route]
     if: needs.route.outputs.decision == 'allow_remediation'
 steps:
+  - name: Align workspace to failing commit
+    if: github.event_name == 'workflow_run'
+    env:
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+    run: |
+      set -euo pipefail
+      git fetch --no-tags origin "${SOURCE_SHA}"
+      git checkout --detach "${SOURCE_SHA}"
+
   - name: Download policy handoff for remediation
     uses: actions/download-artifact@v8
     with:
@@ -76,6 +85,7 @@ steps:
 # Policy-approved remediation
 
 Read `build/handoff/handoff.json`. Reinspect the source failed run and triggering diff identified by that handoff before making any edit.
+For `workflow_run` events, treat `${{ github.event.workflow_run.head_sha }}` as the source revision and ensure your edits are based on that revision, not default branch state.
 
 Ask the `sample-test-planner` subagent which existing test most directly detects the defect and whether a new regression test is necessary. Make the smallest policy-approved change, run the documented CI commands, and use `create-pull-request` exactly once.
 
