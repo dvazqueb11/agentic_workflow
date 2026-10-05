@@ -23,6 +23,38 @@ Deterministic jobs produce machine-readable evidence first, then agentic workflo
 
 See `docs/architecture.md` for sequence details.
 
+## End-to-end workflow
+
+```mermaid
+flowchart TD
+    A["CI build or test fails"] --> B["Diagnostician analyzes logs and triggering diff"]
+    B --> C["Policy Gate independently validates the diagnosis"]
+    C --> D{"Policy-approved coding or build defect?"}
+
+    D -- Yes --> E["Remediator creates a minimal fix"]
+    E --> F["Open an agentic-self-heal pull request"]
+    F --> G["Run deterministic build, tests, and anti-weakening checks"]
+    G --> H["Validator posts a readiness assessment"]
+    H --> I["Human reviews and decides whether to merge"]
+
+    D -- "No: infrastructure, external, ambiguous, or unsupported" --> J["Abstain from changing code"]
+    J --> K["Create an evidence-backed escalation issue"]
+    K --> L["Route to the recommended human owner"]
+```
+
+A policy-approved coding or build defect can produce a validated healing pull request, but no agent merges it. Infrastructure, external-system, ambiguous, and unsupported failures fail closed: the system creates an escalation issue and makes no code change.
+
+## Customer-shaped simulation
+
+The fixtures and agent language mirror relevant Sample concepts:
+
+- core, backend, frontend, agentic, and packaging modules
+- Conan/JFrog-style dependency resolution
+- build, regression, release-tree, and Coverity-shaped stages
+- LSF, NFS, runner, and external-system failure categories
+
+The demo does not connect to live sample-db, LSF, NFS, Coverity, JFrog, JIRA, customer databases, or customer credentials.
+
 ## Deterministic vs contextual responsibilities
 
 - **Deterministic**: build/test execution, coverage computation, performance measurement, gate evaluation, handoff schema validation, anti-weakening checks, protected-config checks.
