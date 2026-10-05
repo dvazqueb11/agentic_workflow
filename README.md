@@ -15,6 +15,27 @@ This repository demonstrates a GitHub-native, multi-agent self-healing CI patter
 
 Everything runs in GitHub Actions. VS Code is not part of the runtime flow.
 
+## End-to-end workflow
+
+```mermaid
+flowchart TD
+    A["CI build or test fails"] --> B["Diagnostician analyzes logs and triggering diff"]
+    B --> C["Policy Gate independently validates the diagnosis"]
+    C --> D{"Policy-approved coding or build defect?"}
+
+    D -- Yes --> E["Remediator creates a minimal fix"]
+    E --> F["Open an agentic-self-heal pull request"]
+    F --> G["Run deterministic build, tests, and anti-weakening checks"]
+    G --> H["Validator posts a readiness assessment"]
+    H --> I["Human reviews and decides whether to merge"]
+
+    D -- "No: infrastructure, external, ambiguous, or unsupported" --> J["Abstain from changing code"]
+    J --> K["Create an evidence-backed escalation issue"]
+    K --> L["Route to the recommended human owner"]
+```
+
+A policy-approved coding or build defect can produce a validated healing pull request, but no agent merges it. Infrastructure, external-system, ambiguous, and unsupported failures fail closed: the system creates an escalation issue and makes no code change.
+
 ## Customer-shaped simulation
 
 The fixtures and agent language mirror relevant Sample concepts:
