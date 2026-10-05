@@ -74,4 +74,59 @@ TEST(RiskClassifierTest, ClassifiesMediumRiskForChargebackAndYoungAccount) {
   EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
 }
 
+TEST(RiskClassifierTest, CleanHighAmountAccountTipsIntoMediumRisk) {
+  const TransactionInput input{
+      100000,
+      0,
+      false,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
+}
+
+TEST(RiskClassifierTest, CleanAccountAtCleanAmountThresholdStaysLow) {
+  const TransactionInput input{
+      50000,
+      0,
+      false,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kLow);
+}
+
+TEST(RiskClassifierTest, CleanAmountBonusRequiresNoRecentFailedLogins) {
+  const TransactionInput input{
+      100000,
+      1,
+      false,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kLow);
+}
+
+TEST(RiskClassifierTest, CleanAmountBonusRequiresNoChargeback) {
+  const TransactionInput input{
+      50000,
+      0,
+      true,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
+}
+
+TEST(RiskClassifierTest, CleanAmountBonusRequiresAccountOlderThan30Days) {
+  const TransactionInput input{
+      100000,
+      0,
+      false,
+      true,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
+}
+
 }  // namespace
