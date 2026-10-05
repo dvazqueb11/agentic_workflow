@@ -35,7 +35,7 @@ class AgenticTopologyTests(unittest.TestCase):
             workflow = (WORKFLOWS / workflow_name).read_text(encoding="utf-8")
             for subagent in subagents:
                 with self.subTest(workflow=workflow_name, subagent=subagent):
-                    self.assertIn(f"## agent: `{subagent}`", workflow)
+                    self.assertIn(f"## agent: {subagent}", workflow)
                     self.assertIn(f"`{subagent}` subagent", workflow)
 
     def test_diagnosis_receives_source_run_evidence(self) -> None:

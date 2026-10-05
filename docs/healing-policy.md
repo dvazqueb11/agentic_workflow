@@ -2,12 +2,11 @@
 
 ## Allowed (for this demo)
 
-- Correct an invalid Conan dependency reference.
-- Add a missing include.
-- Correct a small source defect demonstrated by a failing unit test.
-- Add or improve a regression test.
-- Correct a bounded formatting or linting problem.
-- Correct a bounded C/C++ static-analysis defect.
+- `dependency_failure`: correct an invalid Conan dependency reference.
+- `insufficient_coverage`: add or improve meaningful tests, add test fixtures, and make minimal production-code changes only when needed for legitimate testability.
+- `functional_test_failure`: add a missing include, correct a small source defect demonstrated by a failing deterministic test, and add or improve a regression test.
+- `runtime_budget_exceeded` / `memory_budget_exceeded` / `cpu_budget_exceeded`: apply localized algorithmic improvements, remove unnecessary allocations or copies, improve data-structure use, and add bounded deterministic performance tests.
+- `unsupported_or_unsafe_remediation`: no remediation is allowed; escalate.
 
 ## Diagnosis-only (must abstain from code changes)
 
@@ -18,6 +17,8 @@
 - LSF permissions or infrastructure tags.
 - External-system outages.
 - Ambiguous failures without sufficient evidence.
+- `runner_or_external_system`.
+- `unknown`.
 
 ## Blocked
 
@@ -31,6 +32,10 @@
 - Force pushes.
 - Unbounded retries.
 - Broad refactors unrelated to failure.
+- Lowering coverage thresholds.
+- Raising performance budgets.
+- Disabling, skipping, or deleting failing performance tests.
+- Removing validation logic or assertions to satisfy coverage/performance gates.
 
 ## Audit report requirements
 

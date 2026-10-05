@@ -44,7 +44,7 @@ Correlate the pull request body and diff with the original failed run, diagnosis
 
 Treat missing provenance, failed deterministic validation, or ambiguous policy evidence as `not_ready`.
 
-## agent: `sample-regression-auditor`
+## agent: sample-regression-auditor
 ---
 description: Reviews a healing pull-request diff for test deletion, skipped checks, and weakened assertions
 tools: ["read", "search"]
@@ -52,4 +52,4 @@ tools: ["read", "search"]
 
 Inspect only the healing pull-request diff and validation evidence. Report deleted tests, new skips, removed assertions, disabled checks, workflow permission changes, or protected configuration changes. Cite exact files and evidence. Do not edit or approve.
 
-## end agent: `sample-regression-auditor`
+## end agent: sample-regression-auditor

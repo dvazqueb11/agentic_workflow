@@ -10,6 +10,44 @@ ROOT = Path(__file__).resolve().parents[2]
 HANDOFF_CONTRACTS = ROOT / "docs" / "handoff-contracts.json"
 
 ALLOWED_REMEDIATIONS = {
+    "dependency_failure": {
+        "correct_invalid_conan_reference",
+    },
+    "insufficient_coverage": {
+        "add_meaningful_tests",
+        "add_test_fixtures",
+        "minimal_testability_fix",
+        "update_associated_docs",
+    },
+    "functional_test_failure": {
+        "add_missing_include",
+        "small_source_defect_fix",
+        "add_regression_test",
+    },
+    "runtime_budget_exceeded": {
+        "localized_algorithmic_improvement",
+        "remove_unnecessary_allocation_or_copy",
+        "improve_data_structure_use",
+        "bounded_safe_cache",
+        "add_or_refine_deterministic_performance_test",
+    },
+    "memory_budget_exceeded": {
+        "localized_algorithmic_improvement",
+        "remove_unnecessary_allocation_or_copy",
+        "improve_data_structure_use",
+        "bounded_safe_cache",
+        "add_or_refine_deterministic_performance_test",
+    },
+    "cpu_budget_exceeded": {
+        "localized_algorithmic_improvement",
+        "remove_unnecessary_allocation_or_copy",
+        "improve_data_structure_use",
+        "bounded_safe_cache",
+        "add_or_refine_deterministic_performance_test",
+    },
+    "unsupported_or_unsafe_remediation": set(),
+    "runner_or_external_system": set(),
+    "unknown": set(),
     "BUILD_DEPENDENCY": {
         "correct_invalid_conan_reference",
     },
@@ -27,6 +65,9 @@ ALLOWED_REMEDIATIONS = {
 }
 
 DIAGNOSIS_ONLY = {
+    "runner_or_external_system",
+    "unknown",
+    "unsupported_or_unsafe_remediation",
     "RUNNER_OR_EXTERNAL_SYSTEM",
     "UNKNOWN",
 }

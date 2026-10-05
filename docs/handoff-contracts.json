@@ -55,6 +55,15 @@
           "diagnosis"
         ],
         "failure_classification": [
+          "dependency_failure",
+          "insufficient_coverage",
+          "runtime_budget_exceeded",
+          "memory_budget_exceeded",
+          "cpu_budget_exceeded",
+          "functional_test_failure",
+          "unsupported_or_unsafe_remediation",
+          "runner_or_external_system",
+          "unknown",
           "BUILD_DEPENDENCY",
           "SOURCE_COMPILE",
           "UNIT_TEST",
@@ -114,6 +123,15 @@
           "policy_decision"
         ],
         "failure_classification": [
+          "dependency_failure",
+          "insufficient_coverage",
+          "runtime_budget_exceeded",
+          "memory_budget_exceeded",
+          "cpu_budget_exceeded",
+          "functional_test_failure",
+          "unsupported_or_unsafe_remediation",
+          "runner_or_external_system",
+          "unknown",
           "BUILD_DEPENDENCY",
           "SOURCE_COMPILE",
           "UNIT_TEST",

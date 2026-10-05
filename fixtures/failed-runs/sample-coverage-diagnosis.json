@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "diagnosis",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1003,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1003",
+  "source_commit_sha": "3333333333333333333333333333333333333333",
+  "source_pull_request_number": 44,
+  "failed_workflow": "CI",
+  "failed_job": "build-test",
+  "failed_command": "python3 scripts/evaluate_coverage.py --coverage-json build/coverage/coverage.json --gates-config config/quality-gates.json --report-output build/coverage/coverage-gate.json",
+  "affected_modules": [
+    "core"
+  ],
+  "evidence": [
+    "build/coverage/coverage-gate.json: overall line coverage below threshold",
+    "build/coverage/coverage-gate.json: measurable changed lines include uncovered branches in src/risk_classifier.cpp"
+  ],
+  "triggering_diff_summary": "The pull request introduced new risk-classifier branch logic without corresponding tests.",
+  "failure_classification": "insufficient_coverage",
+  "diagnosis": "Changed source branches are not covered by deterministic tests, violating changed-line and overall coverage policy.",
+  "confidence": "high",
+  "remediation_action": "add_meaningful_tests",
+  "recommended_owner": null
+}

@@ -1,0 +1,11 @@
+{
+  "coverage": {
+    "overall_line_coverage_min": 80.0,
+    "changed_line_coverage_min": 85.0
+  },
+  "performance": {
+    "runtime_median_ms_max": 140.0,
+    "cpu_time_median_ms_max": 140.0,
+    "peak_rss_kb_max": 320000
+  }
+}

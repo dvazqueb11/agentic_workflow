@@ -1,5 +1,43 @@
 {
   "allowed": {
+    "dependency_failure": [
+      "correct_invalid_conan_reference"
+    ],
+    "insufficient_coverage": [
+      "add_meaningful_tests",
+      "add_test_fixtures",
+      "minimal_testability_fix",
+      "update_associated_docs"
+    ],
+    "functional_test_failure": [
+      "add_missing_include",
+      "small_source_defect_fix",
+      "add_regression_test"
+    ],
+    "runtime_budget_exceeded": [
+      "localized_algorithmic_improvement",
+      "remove_unnecessary_allocation_or_copy",
+      "improve_data_structure_use",
+      "bounded_safe_cache",
+      "add_or_refine_deterministic_performance_test"
+    ],
+    "memory_budget_exceeded": [
+      "localized_algorithmic_improvement",
+      "remove_unnecessary_allocation_or_copy",
+      "improve_data_structure_use",
+      "bounded_safe_cache",
+      "add_or_refine_deterministic_performance_test"
+    ],
+    "cpu_budget_exceeded": [
+      "localized_algorithmic_improvement",
+      "remove_unnecessary_allocation_or_copy",
+      "improve_data_structure_use",
+      "bounded_safe_cache",
+      "add_or_refine_deterministic_performance_test"
+    ],
+    "unsupported_or_unsafe_remediation": [],
+    "runner_or_external_system": [],
+    "unknown": [],
     "BUILD_DEPENDENCY": [
       "correct_invalid_conan_reference"
     ],
@@ -16,6 +54,9 @@
     ]
   },
   "diagnosis_only": [
+    "runner_or_external_system",
+    "unknown",
+    "unsupported_or_unsafe_remediation",
     "credentials_or_authentication_failure",
     "private_registry_access_missing",
     "nfs_or_storage_failure",
@@ -30,6 +71,9 @@
     "automatic_merge",
     "delete_or_weaken_tests",
     "disable_quality_or_security_checks",
+    "lower_coverage_thresholds",
+    "raise_performance_budgets",
+    "disable_or_skip_performance_tests",
     "change_branch_protection",
     "increase_workflow_permissions",
     "force_push",

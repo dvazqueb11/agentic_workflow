@@ -10,85 +10,68 @@ sequenceDiagram
     participant P as Policy Gate Agent
     participant R as Remediator Agent
     participant E as Escalation Agent
-    participant V as Deterministic PR Validation
+    participant V as Healing PR Validation
     participant A as Validator Agent
     participant H as Human Reviewer
 
-    Dev->>CI: Open PR
-    CI-->>D: Failed workflow_run
-    D->>LS: Delegate bounded log analysis
-    D->>DS: Delegate triggering-diff analysis
-    LS-->>D: Failed command and evidence
-    DS-->>D: Affected modules and causality
-    D->>P: Validated diagnosis artifact
+    Dev->>CI: Open/Update PR
+    CI-->>D: workflow_run(failure) + artifacts
+    D->>LS: Analyze failed command/logs
+    D->>DS: Analyze triggering diff/modules
+    LS-->>D: bounded failure evidence
+    DS-->>D: causality and changed modules
+    D->>P: diagnosis handoff (validated)
 
-    alt bounded policy-approved code defect
-        P->>R: allow_remediation artifact
-        R->>V: Create agentic-self-heal PR
-        V->>A: Build, tests, and anti-weakening results
-        A->>H: Readiness comment
-        H->>H: Review and merge decision
-    else infrastructure, external, or ambiguous failure
-        P->>E: abstain_and_escalate artifact
-        E->>H: Escalation issue with owner and next action
+    alt policy allows bounded remediation
+      P->>R: policy_decision allow_remediation
+      R->>V: one agentic-self-heal PR
+      V->>A: deterministic validation outcome
+      A->>H: readiness comment (no merge)
+      H->>H: final approve/merge decision
+    else policy abstains
+      P->>E: policy_decision abstain_and_escalate
+      E->>H: escalation issue, no code changes
     end
 ```
 
-## Workflow-level coding agents
+## Reused components
 
-Each agentic workflow selects a repository custom-agent profile from `.github/agents/` using the Copilot engine's `agent` option:
+- Existing `self-heal*` workflow chain and handoff model.
+- Existing custom agents (`sample-diagnostician`, `sample-policy-gate`, `sample-remediator`, `sample-escalation`, `sample-validator`).
+- Existing deterministic policy harness (`tests/policy/` and `docs/handoff-contracts.json`).
+- Existing healing PR validation as the mandatory pre-merge quality gate.
 
-| Workflow | Custom agent | Responsibility |
-|---|---|---|
-| `Sample Diagnose` | `sample-diagnostician` | Evidence collection, classification, and diagnosis |
-| `Sample Policy Gate` | `sample-policy-gate` | Independent allow-or-abstain decision |
-| `Sample Remediate` | `sample-remediator` | Minimal policy-approved fix and pull request |
-| `Sample Escalate` | `sample-escalation` | Evidence-backed non-code escalation |
-| `Sample Healing Review` | `sample-validator` | Independent readiness assessment |
+## New deterministic quality surfaces
 
-## Native subagents
+1. **Coverage evidence + gate**
+   - `gcovr` JSON/XML/TXT output.
+   - `scripts/evaluate_coverage.py` computes overall coverage and changed-line coverage when measurable.
+   - Structured result: `build/coverage/coverage-gate.json`.
 
-The parent coding agents delegate bounded work to inline Copilot subagents:
+2. **Performance evidence + gate**
+   - deterministic probe executable (`project_boost_performance_budget_probe`).
+   - warm-up + multi-sample median metrics for runtime and CPU, plus peak RSS.
+   - Structured result: `build/performance/performance-gate.json`.
 
-- `sample-log-analyst`
-- `sample-diff-analyst`
-- `sample-provenance-auditor`
-- `sample-test-planner`
-- `sample-regression-auditor`
+3. **Failure classification**
+   - `scripts/classify_ci_failure.py` emits one machine-readable routing artifact:
+     `build/classification/failure-classification.json`.
 
-The parent remains accountable for the final output and must reconcile subagent findings against cited evidence.
+## Handoff and policy boundaries
 
-## Deterministic handoffs
+- Handoff schema remains versioned and validated.
+- Policy still fails closed on malformed/ambiguous provenance.
+- New classifications for coverage and performance are explicitly enumerated.
+- Threshold relaxation (coverage down / performance budgets up) is blocked in healing PR validation.
 
-Diagnose and Policy Gate publish one `agent-handoff` artifact through a custom safe-output job. Before publication:
+## Security model
 
-1. The safe-output payload is extracted from `GH_AW_AGENT_OUTPUT`.
-2. `tests/policy/extract_handoff.py` requires exactly one payload.
-3. `tests/policy/healing_rules.py` validates the versioned contract.
-4. Diagnosis provenance is compared with the triggering CI event.
-5. Later handoffs are compared field-for-field with the artifact from the exact predecessor run.
-6. Downstream workflows redownload and validate the artifact before their coding agent starts.
+- CI and validation remain least-privilege (`contents: read` plus minimal per-job grants).
+- Agentic workflows still use declared safe outputs only.
+- Remediation remains PR-only (`agentic-self-heal`) with human approval required.
+- No direct default-branch pushes, no auto-merge, no branch-protection/secret/permission edits.
 
-Each artifact carries repository, source run ID and URL, commit SHA, and pull request number when available. Missing, malformed, stale, or mismatched provenance stops the chain.
+## Reliability notes
 
-## Orchestration choice
-
-GitHub events and artifacts coordinate the agents:
-
-- `CI` failure triggers Diagnose.
-- Diagnose completion triggers Policy Gate.
-- Policy Gate completion triggers both outcome workflows, but deterministic routing allows only the matching agent to execute.
-- Healing PR Validation is rooted in the pull-request event, and its completion triggers Healing Review.
-
-This fits within GitHub's `workflow_run` chaining limit and does not require a PAT or GitHub App merely to retrigger label events.
-
-Pull requests created with the default `GITHUB_TOKEN` can leave their workflows pending GitHub approval. Configure the optional `GH_AW_CI_TRIGGER_TOKEN` through an administrator-managed secret for uninterrupted execution, or include the **Approve workflows to run** click in the demo. No coding agent manages that credential.
-
-## Security boundaries
-
-- Agent jobs are read-only.
-- Pull requests, issues, comments, and handoff publication use declared safe outputs.
-- Remediation cannot run on an abstention decision.
-- Escalation has no code-write safe output.
-- Validation never approves or merges.
-- Branch protection, secrets, credentials, permissions, runners, and customer infrastructure remain outside agent control.
+- Coverage changed-line evaluation is reported as `not_measurable` when instrumentation does not map changed lines; it is never fabricated.
+- Performance budgets are CI policy thresholds for repeatable demo governance, not production-wide SLO guarantees.
