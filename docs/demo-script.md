@@ -7,7 +7,7 @@
 3. Show the five agentic workflow sources and explain that their `.lock.yml` files are compiled GitHub Actions.
 4. Open `docs/architecture.md` and identify parent coding agents, native subagents, deterministic gates, and safe outputs.
 
-## Path A: bounded self-healing
+## Path A: dependency bounded self-healing
 
 1. Create a demo branch and change `conanfile.py` from `gtest/1.14.0` to `gtest/99.99.99`.
 2. Open a pull request.
@@ -32,7 +32,30 @@
 10. Open `Sample Healing Review` and show the independent readiness comment.
 11. Emphasize that no agent merges; a human makes the final decision.
 
-## Path B: infrastructure abstention
+## Path B: coverage bounded self-healing
+
+1. Add one branch in `src/risk_classifier.cpp` without adding tests.
+2. Open a pull request and show `CI` coverage-gate failure.
+3. Open `build/coverage/coverage-gate.json` artifact and call out:
+   - overall threshold
+   - changed-line threshold or not-measurable status
+   - uncovered evidence references
+4. Follow Diagnose -> Policy Gate -> Remediate and open the generated healing PR.
+5. Show that the healing PR adds meaningful tests (not threshold changes) and that unchanged validation now passes.
+
+## Path C: performance bounded self-healing
+
+1. Route `CountUniqueCommonTokens` to the slow path in `src/performance_demo.cpp`.
+2. Open a pull request and show performance-gate failure.
+3. Open `build/performance/performance-gate.json` and call out:
+   - failed metric
+   - observed value
+   - configured budget
+   - runner metadata
+4. Follow Diagnose -> Policy Gate -> Remediate and inspect the optimization-focused healing PR.
+5. Show that functional tests and performance gate both pass on the healing PR.
+
+## Path D: infrastructure abstention
 
 1. Dispatch `Sample Diagnose` with `sample-lsf-infrastructure-diagnosis`.
 2. Show evidence for LSF authorization denial and unavailable NFS release storage.

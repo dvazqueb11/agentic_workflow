@@ -34,6 +34,21 @@ class PolicyTests(unittest.TestCase):
         decision = policy_decision_for("BUILD_DEPENDENCY", "correct_invalid_conan_reference")
         self.assertEqual(decision, "allow")
 
+    def test_policy_decision_allows_coverage_test_additions(self) -> None:
+        decision = policy_decision_for("insufficient_coverage", "add_meaningful_tests")
+        self.assertEqual(decision, "allow")
+
+    def test_policy_decision_allows_performance_optimization(self) -> None:
+        decision = policy_decision_for(
+            "runtime_budget_exceeded",
+            "localized_algorithmic_improvement",
+        )
+        self.assertEqual(decision, "allow")
+
+    def test_policy_decision_blocks_budget_relaxation_action(self) -> None:
+        decision = policy_decision_for("runtime_budget_exceeded", "raise_performance_budgets")
+        self.assertEqual(decision, "abstain")
+
     def test_policy_decision_abstain_for_external(self) -> None:
         fixture = load_json(FIXTURES / "external-system-outage.json")
         decision = policy_decision_for(fixture["classification"], None)
@@ -69,6 +84,28 @@ class PolicyTests(unittest.TestCase):
                 diagnosis["remediation_action"],
             ),
             "abstain",
+        )
+
+    def test_coverage_diagnosis_contract_and_routing(self) -> None:
+        diagnosis = load_json(FIXTURES / "sample-coverage-diagnosis.json")
+        self.assertEqual(validate_handoff_shape(diagnosis), [])
+        self.assertEqual(
+            policy_decision_for(
+                diagnosis["failure_classification"],
+                diagnosis["remediation_action"],
+            ),
+            "allow",
+        )
+
+    def test_performance_diagnosis_contract_and_routing(self) -> None:
+        diagnosis = load_json(FIXTURES / "sample-performance-diagnosis.json")
+        self.assertEqual(validate_handoff_shape(diagnosis), [])
+        self.assertEqual(
+            policy_decision_for(
+                diagnosis["failure_classification"],
+                diagnosis["remediation_action"],
+            ),
+            "allow",
         )
 
     def test_policy_handoffs_match_expected_branches(self) -> None:

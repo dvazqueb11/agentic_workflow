@@ -8,6 +8,8 @@
 | Selective CI builds | Agent identifies impacted modules before remediation |
 | Conan and JFrog dependencies | Reproducible invalid Conan reference scenario |
 | Backend and platform regressions | Unchanged CTest and policy validation stages |
+| Coverage policy governance | Overall and changed-line coverage gates with machine-readable evidence |
+| Performance policy governance | Deterministic runtime/CPU/memory budgets with machine-readable evidence |
 | Hosted Coverity | `STATIC_ANALYSIS` policy class and anti-weakening controls |
 | LSF farm | Diagnosis-only LSF authorization fixture |
 | NFS release artifacts | Diagnosis-only unavailable release-tree fixture |

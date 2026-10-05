@@ -96,8 +96,9 @@ Ask the `sample-test-planner` subagent which existing test most directly detects
 The pull-request body must include the original run, diagnosis, policy decision, evidence, changed files, validation performed, confidence, limitations, and an explicit statement that a human must decide whether to merge.
 
 Do not use a memorized dependency-version replacement. Determine any dependency correction from repository evidence and available package metadata.
+Never lower coverage thresholds, never raise performance budgets, and never disable/skip tests or benchmarks to satisfy quality gates.
 
-## agent: `sample-test-planner`
+## agent: sample-test-planner
 ---
 description: Identifies the smallest regression validation needed for an approved remediation
 tools: ["read", "search"]
@@ -105,4 +106,4 @@ tools: ["read", "search"]
 
 Inspect the approved diagnosis, relevant source, and existing tests. Return the smallest test plan that proves the defect is fixed without weakening coverage. Do not edit files.
 
-## end agent: `sample-test-planner`
+## end agent: sample-test-planner

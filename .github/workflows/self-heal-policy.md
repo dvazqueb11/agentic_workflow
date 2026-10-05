@@ -16,6 +16,8 @@ on:
         type: choice
         options:
           - sample-dependency-diagnosis
+          - sample-coverage-diagnosis
+          - sample-performance-diagnosis
           - sample-lsf-infrastructure-diagnosis
 permissions:
   contents: read
@@ -70,11 +72,11 @@ Call `publish-handoff` exactly once with a JSON string matching the `policy_deci
 Preserve all `source_*` values from the diagnosis exactly. For an automatic run, set `diagnosis_workflow_run_id` to `${{ github.event.workflow_run.id }}`.
 
 - Use `allow_remediation` only for a bounded, explicit, policy-listed action with sufficient evidence.
-- Use `abstain_and_escalate` for infrastructure, credentials, permissions, NFS, LSF, runners, external services, ambiguity, insufficient evidence, or any malformed context.
+- Use `abstain_and_escalate` for infrastructure, credentials, permissions, NFS, LSF, runners, external services, ambiguity, insufficient evidence, malformed context, or `unsupported_or_unsafe_remediation`.
 
 Do not edit code or create a pull request.
 
-## agent: `sample-provenance-auditor`
+## agent: sample-provenance-auditor
 ---
 description: Checks diagnosis provenance and evidence correlation without making the policy decision
 tools: ["read", "search"]
@@ -82,4 +84,4 @@ tools: ["read", "search"]
 
 Inspect the diagnosis handoff. Verify that repository, run, commit, pull request, diff summary, and evidence references are internally consistent. Report mismatches, missing evidence, and confidence. Do not decide whether remediation is allowed.
 
-## end agent: `sample-provenance-auditor`
+## end agent: sample-provenance-auditor

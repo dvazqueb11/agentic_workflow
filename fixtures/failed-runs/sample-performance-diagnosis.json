@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "handoff_type": "diagnosis",
+  "source_repository": "dvazqueb11/agentic_workflow",
+  "source_workflow_run_id": 1004,
+  "source_workflow_run_url": "https://github.com/dvazqueb11/agentic_workflow/actions/runs/1004",
+  "source_commit_sha": "4444444444444444444444444444444444444444",
+  "source_pull_request_number": 45,
+  "failed_workflow": "CI",
+  "failed_job": "build-test",
+  "failed_command": "python3 scripts/evaluate_performance.py --results-json build/performance/performance-results.json --gates-config config/quality-gates.json --report-output build/performance/performance-gate.json",
+  "affected_modules": [
+    "core"
+  ],
+  "evidence": [
+    "build/performance/performance-gate.json: runtime median exceeded runtime_median_ms_max",
+    "build/performance/performance-results.json: benchmark common_tokens_budget observed deterministic regression"
+  ],
+  "triggering_diff_summary": "The pull request replaced fast token matching with repeated nested-loop work in src/performance_demo.cpp.",
+  "failure_classification": "runtime_budget_exceeded",
+  "diagnosis": "The selected algorithm regressed runtime above configured policy budget while functional correctness remained intact.",
+  "confidence": "high",
+  "remediation_action": "localized_algorithmic_improvement",
+  "recommended_owner": null
+}
