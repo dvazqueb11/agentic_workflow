@@ -74,4 +74,26 @@ TEST(RiskClassifierTest, ClassifiesMediumRiskForChargebackAndYoungAccount) {
   EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
 }
 
+TEST(RiskClassifierTest, AddsCleanHistoryScoreForLargeAmountWithoutRiskSignals) {
+  const TransactionInput input{
+      100000,
+      0,
+      false,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kMedium);
+}
+
+TEST(RiskClassifierTest, OmitsCleanHistoryScoreWhenFailedLoginsExist) {
+  const TransactionInput input{
+      100000,
+      1,
+      false,
+      false,
+      false,
+  };
+  EXPECT_EQ(ClassifyTransactionRisk(input), TransactionRisk::kLow);
+}
+
 }  // namespace
