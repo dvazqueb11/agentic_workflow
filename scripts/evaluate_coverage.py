@@ -52,12 +52,45 @@ def parse_changed_lines(base_sha: str, head_sha: str) -> dict[str, set[int]]:
     return changed
 
 
-def extract_line_coverage(gcovr_payload: dict[str, Any]) -> dict[str, dict[int, int]]:
+def list_tracked_project_files() -> set[str]:
+    result = subprocess.run(
+        ["git", "ls-files", "src", "include"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    tracked: set[str] = set()
+    for line in result.stdout.splitlines():
+        normalized = line.strip().replace("\\", "/")
+        if normalized:
+            tracked.add(normalized)
+    return tracked
+
+
+def to_repo_candidate(path: str) -> str:
+    normalized = path.replace("\\", "/")
+    if normalized.startswith("./"):
+        return normalized[2:]
+    if normalized.startswith("src/") or normalized.startswith("include/"):
+        return normalized
+    for anchor in ("src/", "include/"):
+        marker = f"/{anchor}"
+        if marker in normalized:
+            return anchor + normalized.split(marker, maxsplit=1)[1]
+    return normalized
+
+
+def extract_line_coverage(
+    gcovr_payload: dict[str, Any], tracked_files: set[str]
+) -> dict[str, dict[int, int]]:
     per_file: dict[str, dict[int, int]] = {}
     files = gcovr_payload.get("files", [])
     for file_payload in files:
         file_name = file_payload.get("file")
         if not isinstance(file_name, str):
+            continue
+        repo_file = to_repo_candidate(file_name)
+        if repo_file not in tracked_files:
             continue
         lines = file_payload.get("lines", [])
         line_hits: dict[int, int] = {}
@@ -66,15 +99,22 @@ def extract_line_coverage(gcovr_payload: dict[str, Any]) -> dict[str, dict[int, 
             count = line_payload.get("count")
             if isinstance(line_number, int) and isinstance(count, int):
                 line_hits[line_number] = count
-        per_file[file_name.replace("\\", "/")] = line_hits
+        per_file[repo_file] = line_hits
     return per_file
 
 
-def resolve_repo_relative_file(path: str) -> str:
-    normalized = path.replace("\\", "/")
-    if normalized.startswith("./"):
-        return normalized[2:]
-    return normalized
+def compute_overall_line_percent(per_file_line_hits: dict[str, dict[int, int]]) -> float:
+    total_lines = 0
+    covered_lines = 0
+    for lines in per_file_line_hits.values():
+        for count in lines.values():
+            total_lines += 1
+            if count > 0:
+                covered_lines += 1
+
+    if total_lines == 0:
+        return 0.0
+    return (covered_lines / total_lines) * 100.0
 
 
 def main() -> int:
@@ -92,18 +132,21 @@ def main() -> int:
     overall_threshold = float(gates["coverage"]["overall_line_coverage_min"])
     changed_threshold = float(gates["coverage"]["changed_line_coverage_min"])
 
-    line_percent = float(coverage_payload.get("line_percent", 0.0))
+    tracked_files = list_tracked_project_files()
+    per_file_line_hits = extract_line_coverage(coverage_payload, tracked_files)
+    line_percent = compute_overall_line_percent(per_file_line_hits)
     overall_passed = line_percent >= overall_threshold
 
     changed_lines = parse_changed_lines(args.base_sha, args.head_sha)
-    per_file_line_hits = extract_line_coverage(coverage_payload)
 
     measurable_total = 0
     measurable_covered = 0
     raw_changed_total = 0
 
     for file_name, line_numbers in changed_lines.items():
-        normalized_file = resolve_repo_relative_file(file_name)
+        normalized_file = to_repo_candidate(file_name)
+        if normalized_file not in tracked_files:
+            continue
         raw_changed_total += len(line_numbers)
         coverage_map = per_file_line_hits.get(normalized_file, {})
         if not coverage_map:

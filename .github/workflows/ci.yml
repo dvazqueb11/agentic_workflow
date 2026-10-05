@@ -70,6 +70,8 @@ jobs:
             --root . \
             --object-directory build \
             --filter '^.*/(src|include)/' \
+            --exclude '^/usr/include/' \
+            --exclude '^.*/\\.conan2/' \
             --json build/coverage/coverage.json \
             --xml build/coverage/cobertura.xml \
             --xml-pretty \
