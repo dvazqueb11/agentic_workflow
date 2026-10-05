@@ -12,7 +12,7 @@ local-test:
 	ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml
 
 coverage-gate:
-	gcovr --root . --object-directory build --filter '^.*/(src|include)/' --json build/coverage/coverage.json --xml build/coverage/cobertura.xml --xml-pretty --txt build/coverage/summary.txt
+	gcovr --root . --object-directory build --filter '^.*/(src|include)/' --exclude '^/usr/include/' --exclude '^.*/\\.conan2/' --json build/coverage/coverage.json --xml build/coverage/cobertura.xml --xml-pretty --txt build/coverage/summary.txt
 	python3 scripts/evaluate_coverage.py --coverage-json build/coverage/coverage.json --gates-config config/quality-gates.json --report-output build/coverage/coverage-gate.json
 
 performance-gate:
