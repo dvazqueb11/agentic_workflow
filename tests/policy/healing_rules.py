@@ -15,6 +15,7 @@ ALLOWED_REMEDIATIONS = {
     },
     "insufficient_coverage": {
         "add_meaningful_tests",
+        "add_tests_for_uncovered_changed_lines",
         "add_test_fixtures",
         "minimal_testability_fix",
         "update_associated_docs",
