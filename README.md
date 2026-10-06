@@ -127,7 +127,7 @@ conan install . --output-folder=build --build=missing -s build_type=Debug
 cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DPROJECT_BOOST_ENABLE_COVERAGE=ON
 cmake --build build --config Debug
 ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml
-gcovr --root . --object-directory build --filter '^.*/(src|include)/' --json build/coverage/coverage.json --xml-pretty build/coverage/cobertura.xml --txt build/coverage/summary.txt
+gcovr --root . --object-directory build --filter '^src/' --filter '^include/' --filter '^.*/agentic_workflow/(src|include)/' --json build/coverage/coverage.json --xml build/coverage/cobertura.xml --xml-pretty --txt build/coverage/summary.txt
 python3 scripts/evaluate_coverage.py --coverage-json build/coverage/coverage.json --gates-config config/quality-gates.json --report-output build/coverage/coverage-gate.json
 ```
 
