@@ -35,6 +35,13 @@ TransactionRisk ClassifyTransactionRisk(const TransactionInput& input) {
     risk_score += 2;
   }
 
+  if (input.amount_cents >= 50000 &&
+      input.failed_logins_last_24h == 0 &&
+      !input.chargeback_last_30_days &&
+      !input.account_age_under_30_days) {
+    risk_score += 1;
+  }
+
   if (risk_score >= 7) {
     return TransactionRisk::kHigh;
   }

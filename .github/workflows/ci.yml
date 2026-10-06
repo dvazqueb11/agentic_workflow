@@ -69,9 +69,12 @@ jobs:
           gcovr \
             --root . \
             --object-directory build \
-            --filter '^.*/(src|include)/' \
+            --filter '^src/' \
+            --filter '^include/' \
+            --filter '^.*/agentic_workflow/(src|include)/' \
             --json build/coverage/coverage.json \
-            --xml-pretty build/coverage/cobertura.xml \
+            --xml build/coverage/cobertura.xml \
+            --xml-pretty \
             --txt build/coverage/summary.txt
           python3 scripts/evaluate_coverage.py \
             --coverage-json build/coverage/coverage.json \
