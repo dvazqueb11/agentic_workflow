@@ -47,7 +47,7 @@ jobs:
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -DPROJECT_BOOST_ENABLE_COVERAGE=ON | tee build/logs/cmake-configure.log
           cmake --build build --config Debug | tee build/logs/cmake-build.log
           ctest --test-dir build --output-on-failure --no-tests=error --output-junit build/ctest-results.xml | tee build/logs/ctest.log
-          gcovr --root . --object-directory build --filter '^.*/(src|include)/' --exclude '^/usr/include/' --exclude '^.*/\\.conan2/' --json build/coverage/coverage.json --xml build/coverage/cobertura.xml --xml-pretty --txt build/coverage/summary.txt
+          gcovr --root . --object-directory build --filter '^src/' --filter '^include/' --filter '^.*/agentic_workflow/(src|include)/' --json build/coverage/coverage.json --xml build/coverage/cobertura.xml --xml-pretty --txt build/coverage/summary.txt
           python3 scripts/evaluate_coverage.py --coverage-json build/coverage/coverage.json --gates-config config/quality-gates.json --report-output build/coverage/coverage-gate.json --base-sha "${{ github.event.pull_request.base.sha }}" --head-sha "${{ github.event.pull_request.head.sha }}" | tee build/logs/coverage-gate.log
           cp build/performance-results.json build/performance/performance-results.json
           python3 scripts/evaluate_performance.py --results-json build/performance/performance-results.json --gates-config config/quality-gates.json --report-output build/performance/performance-gate.json | tee build/logs/performance-gate.log
