@@ -34,7 +34,7 @@ std::size_t CountUniqueCommonTokensFast(
 std::size_t CountUniqueCommonTokens(
     const std::vector<std::string>& left,
     const std::vector<std::string>& right) {
-  return CountUniqueCommonTokensFast(left, right);
+  return CountUniqueCommonTokensSlow(left, right);
 }
 
 }  // namespace project_boost
