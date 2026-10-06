@@ -38,6 +38,12 @@ class PolicyTests(unittest.TestCase):
         decision = policy_decision_for("insufficient_coverage", "add_meaningful_tests")
         self.assertEqual(decision, "allow")
 
+    def test_policy_decision_allows_uncovered_changed_lines_action(self) -> None:
+        decision = policy_decision_for(
+            "insufficient_coverage", "add_tests_for_uncovered_changed_lines"
+        )
+        self.assertEqual(decision, "allow")
+
     def test_policy_decision_allows_performance_optimization(self) -> None:
         decision = policy_decision_for(
             "runtime_budget_exceeded",
